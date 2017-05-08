@@ -6,11 +6,11 @@ sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), os.par
 
 
 from main import create_app
-
+from psutil import Process
 def json_parser(text: str) -> dict:
     return json.loads(text)
 
-
+###Request
 async def test_cpu_percent(test_client):
     client = await test_client(create_app)
     resp = await client.get('/cpu_percent')
@@ -93,9 +93,12 @@ async def test_pid_non_existing_process(test_client):
 
 async def test_pid_existing_process(test_client):
     client = await test_client(create_app)
-    resp = await client.get('/pid?name=python')
+    resp = await client.get('/pid?name=pytest')
     assert resp.status == 200
     text = await resp.text()
     data = json_parser(text)
     assert isinstance(data, dict)
     assert isinstance(data['data'], int)
+
+#TODO add test private func like _find_pid or _process
+#TODO add fake process and get it pid
