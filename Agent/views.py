@@ -6,13 +6,16 @@ Request = str  # TODO change it
 Json = Dict[Any, Any]
 Process = psutil.Process
 
-class Agnet(object):
+class Agent(object):
     register = {} #name : p
 ### host
 
+    def __init__(self):
+        pass
+
     async def cpu_percent(self, request: Request) -> Json:
         """
-        :param request: 
+        :param request:
         :return:
          json {'data': float or list floats}
         """

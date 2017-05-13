@@ -1,9 +1,10 @@
 import configparser
+import os
 from aiohttp import web
 from routes import setup_routes
-import os
 
-def create_app(loop=None, path_config_file = 'agent.ini') -> web.Application:
+
+def create_app(loop=None, config_path='agent.ini') -> web.Application:
     """
     :param path_config_file: path to config file
     :return: web application created by aiohttp
@@ -12,7 +13,7 @@ def create_app(loop=None, path_config_file = 'agent.ini') -> web.Application:
     #config
     path = os.path.dirname(os.path.realpath(__file__))
     print(path)
-    path = os.path.join(path, path_config_file)
+    path = os.path.join(path, config_path)
     print(path)
     config = configparser.ConfigParser()
     config.read(path)
