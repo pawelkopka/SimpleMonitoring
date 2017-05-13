@@ -1,1 +1,7 @@
 aiohttp
+pytest-aiohttp
+sphinx
+psutil
+aioresponses
+tornado==4.4.2 #bokeh not working with high
+bokeh
