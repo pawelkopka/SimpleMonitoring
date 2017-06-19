@@ -52,7 +52,7 @@ class ClientAgent:
         resp = await self._make_request_get('pid', params=params)
         return json.loads(await resp.text())
 
-if __name__ == '__main__':
+if __name__ == '__main__':#TODO remove this
       loop = asyncio.get_event_loop()
       a = ClientAgent('localhost', '8080', loop=loop)
       b = loop.run_until_complete(a.cpu_percent())
