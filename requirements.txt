@@ -2,9 +2,7 @@ aiohttp
 pytest-aiohttp
 sphinx
 psutil
-aioresponses
 tornado==4.4.2 #bokeh not working with high
 bokeh
 sqlalchemy
-asyncpg~=0.9.0 #asyncpgsa dont support 1.0.0
-asyncpgsa
+aiopg
