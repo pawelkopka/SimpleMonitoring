@@ -1,27 +1,26 @@
 import asyncio
 from aiopg.sa import create_engine
 import sqlalchemy as sa
-import time
-import datetime
+
 
 class DBclient(object):
 
     def __init__(self, db_config, agents_config, loop=None):
-        #TODO create metadata from config
         self.loop = loop
-        self.db_config = db_config
         if not loop:
             self.loop = asyncio.get_event_loop()
+        self.db_config = db_config
         self.BuilderDB = BuildDB(db_config)
         self.BuilderDB.setup_metadata(agents_config)
         self.BuilderDB.build_db()
         self.loop.run_until_complete(self._init_engine())
 
-    async def _init_engine(self):#TODO add param to conntion
+    async def _init_engine(self):
         self.engine = await create_engine(host=self.db_config['host'],
                                           user=self.db_config['user'],
                                           password=self.db_config['password'],
-                                          database=self.db_config['database'])
+                                          database=self.db_config['database']
+                                          )
 
     async def fill_db(self, table_name, data):
         async with self.engine.acquire() as conn:
@@ -40,11 +39,12 @@ class DBclient(object):
 
 class BuildDB(object):
     MAP_DB_TYPE = {'float': sa.FLOAT, 'json': sa.JSON}
-    metadata = sa.MetaData()
 
     def __init__(self, db_config):
+        self.metadata = sa.MetaData()
         self.db_config = db_config
         self.metadata_controller = {}
+
     @property
     def uri(self):
         uri = 'postgresql://{user}:{password}@{host}:{port}/{database}'.format(

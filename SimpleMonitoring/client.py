@@ -1,19 +1,12 @@
 from aiohttp import ClientSession
 from urllib.parse import urljoin
 import json
-import aiohttp
-import asyncio
-import logging
 
-FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
-logging.basicConfig(format=FORMAT)
 
 class ClientAgent:
     """
     client for agent
     """
-    logger = logging.getLogger('ClientAgent')
-
     def __init__(self, host: str, port: (str, int), loop=None):
         self.loop = loop
         self.url_perfix = 'http://{host}:{port}/'.format(host=host, port=port)
@@ -52,8 +45,4 @@ class ClientAgent:
         resp = await self._make_request_get('pid', params=params)
         return json.loads(await resp.text())
 
-if __name__ == '__main__':#TODO remove this
-      loop = asyncio.get_event_loop()
-      a = ClientAgent('localhost', '8080', loop=loop)
-      b = loop.run_until_complete(a.cpu_percent())
-      print(b)
+

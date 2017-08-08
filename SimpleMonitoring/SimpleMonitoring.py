@@ -1,9 +1,9 @@
-from collector import Collector
 from utils import parse_config
+from plotter import Plotter
+
 
 db_config, agents_config = parse_config('collector.ini')
+plotter = Plotter(db_config, agents_config)
+plotter.run(1000)
 
-bone_colletor = Collector(db_config, agents_config)
-bone_colletor.initialization_clients()
-bone_colletor.loop.run_until_complete(bone_colletor.task_scheduler(interval=3))
 
