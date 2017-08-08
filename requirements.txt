@@ -1,1 +1,9 @@
 aiohttp
+pytest-aiohttp
+sphinx
+psutil
+tornado==4.4.2 #bokeh not working with high
+bokeh
+sqlalchemy
+aiopg
+retry
