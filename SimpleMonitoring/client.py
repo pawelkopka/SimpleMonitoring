@@ -7,6 +7,7 @@ class ClientAgent:
     """
     client for agent
     """
+
     def __init__(self, host: str, port: (str, int), loop=None):
         self.loop = loop
         self.url_perfix = 'http://{host}:{port}/'.format(host=host, port=port)
@@ -19,7 +20,7 @@ class ClientAgent:
                 if resp.status != 200:
                     # print(resp.raise_for_status())
                     # self.logger.warning(resp.text)#TODO add logging error response
-                    resp._body = None#TODO change repsone text to None
+                    resp._body = None  # TODO change repsone text to None
                     print(resp.text())
                     return resp
                 return resp
@@ -44,5 +45,3 @@ class ClientAgent:
         params = {'name': name}
         resp = await self._make_request_get('pid', params=params)
         return json.loads(await resp.text())
-
-

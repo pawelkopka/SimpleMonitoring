@@ -1,6 +1,7 @@
 import os
 import configparser
 
+
 def parse_config(config_path='collector.ini'):
     general = ['database']
     path = os.path.dirname(os.path.realpath(__file__))  # TODO change arg path

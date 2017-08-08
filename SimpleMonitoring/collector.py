@@ -8,7 +8,6 @@ from utils import parse_config
 
 
 class Collector:
-
     def __init__(self, db_config, agents_config, loop=None):
         self.loop = loop
         if not loop:
@@ -57,7 +56,7 @@ class Collector:
 
     async def add_tasks(self, timeout=3):
         for client_name, client_controler in self.clients.items():
-            row_future = []#TODO think about row/future
+            row_future = []  # TODO think about row/future
             for num, monitoring_item in enumerate(client_controler['monitoring']):
                 row_future.append(asyncio.Future(loop=self.loop))
                 self.loop.create_task(self.fetch_data(row_future[num], client_controler['client'], monitoring_item))

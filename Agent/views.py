@@ -1,13 +1,14 @@
 import psutil
 from aiohttp import web
 from typing import Dict, Any
+
 Request = str  # TODO change it
 Json = Dict[Any, Any]
 Process = psutil.Process
 
+
 class Agent(object):
-    register = {} #name : p
-### host
+    register = {}
 
     def __init__(self):
         pass
@@ -33,7 +34,6 @@ class Agent(object):
                           shared)}
         """
         return web.json_response(dict(data=psutil.virtual_memory()))
-
 
     async def sensors_temperatures(self, request: Request) -> Json:
         """
@@ -73,7 +73,6 @@ class Agent(object):
             return web.json_response(dict(data=pid), status=200)
         return web.json_response('Process {name} not founded'.format(name=query['name']), status=404)
 
-    ### Process
     async def _process(self, pid: int) -> Process:
         """
         :param pid: 
@@ -90,10 +89,5 @@ class Agent(object):
             pid = self._find_pid(process_name)
             if pid:
                 self.register[process_name] = self._process(pid)
-
-    # async def proc
-
-
-
 
 

@@ -8,7 +8,6 @@ from database import DBclient
 
 
 class Plotter(object):
-
     def __init__(self, db_config, agents_config, loop=None):
         self.loop = loop
         if not loop:
@@ -63,7 +62,7 @@ class Plotter(object):
 
     def fill_buffors(self, results):
         for agent_info, result_list in zip(self.agents_config.items(), results):
-            agent, agent_config= agent_info
+            agent, agent_config = agent_info
             result = result_list[0]
             i = 1
             for data, data_config in agent_config['monitoring'].items():
