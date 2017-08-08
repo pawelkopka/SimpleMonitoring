@@ -1,64 +1,70 @@
 import asyncio
 from aiopg.sa import create_engine
 import sqlalchemy as sa
-import random
+import time
 import datetime
 
 class DBclient(object):
-    metadata = sa.MetaData()
-    #TODO create Table from config
-    controler1 = sa.Table('controler1', metadata,
-                     sa.Column('time', sa.DateTime, primary_key=True),
-                     sa.Column('cpu', sa.Float),
-                     sa.Column('virtual_memory', sa.JSON))
-    controler2 = sa.Table('controler2', metadata,
-                     sa.Column('time', sa.DateTime, primary_key=True),
-                     sa.Column('cpu', sa.Float),
-                     sa.Column('virtual_memory', sa.JSON))
 
-    map_tables = {'controler1': controler1, 'controler2': controler2}
-    def __init__(self, loop=None):#TODO add parm to connetion
+    def __init__(self, db_config, agents_config, loop=None):
         #TODO create metadata from config
         self.loop = loop
+        self.db_config = db_config
         if not loop:
             self.loop = asyncio.get_event_loop()
-        self.create_tables()
+        self.BuilderDB = BuildDB(db_config)
+        self.BuilderDB.setup_metadata(agents_config)
+        self.BuilderDB.build_db()
         self.loop.run_until_complete(self._init_engine())
 
     async def _init_engine(self):#TODO add param to conntion
-        self.engine = await create_engine(host='127.0.0.1', user='postgres', password='ppp', database='test1')
-
-    def create_tables(self):
-        uri = 'postgresql://postgres:ppp@localhost:5432/test1'#TODO parse kwargs to uri
-        engine = sa.create_engine(uri)
-        self.metadata.create_all(engine)
+        self.engine = await create_engine(host=self.db_config['host'],
+                                          user=self.db_config['user'],
+                                          password=self.db_config['password'],
+                                          database=self.db_config['database'])
 
     async def fill_db(self, table_name, data):
-        print(table_name)
-        print(data)
         async with self.engine.acquire() as conn:
-            await conn.execute(self.map_tables[table_name].insert().values(data))
+            await conn.execute(self.BuilderDB.metadata_controller[table_name].insert().values(data))
 
     async def fetch_db(self, table_name):
         async with self.engine.acquire() as conn:
-            res = await conn.execute(self.map_tables[table_name].select())
+            res = await conn.execute(self.BuilderDB.metadata_controller[table_name].select())
             return await res.fetchall()
 
     async def fetch_last_row(self, table_name):
         async with self.engine.acquire() as conn:
-            res = await conn.execute(self.map_tables[table_name].select().order_by(self.map_tables[table_name].c.time.desc()).limit(1))
+            res = await conn.execute(self.BuilderDB.metadata_controller[table_name].select().order_by(self.BuilderDB.metadata_controller[table_name].c.time.desc()).limit(1))
             return await res.fetchall()
 
-    async def go(self):
-        await self.fill_db('controler1', (datetime.datetime.now(), 11, [23, 32, 45]))
-        a = await self.fetch_db('controler1')
-        print(type(a))
-        print(a)
-        b= await self.fetch_last_row('controler1')
-        print(type(b))
-        print(b)
-        # await metadata.create_all(engine)
-# loop = asyncio.get_event_loop()
-# DBC = DBclient(loop=loop)
-# DBC.create_tables()
-# loop.run_until_complete(DBC.go())
+
+class BuildDB(object):
+    MAP_DB_TYPE = {'float': sa.FLOAT, 'json': sa.JSON}
+    metadata = sa.MetaData()
+
+    def __init__(self, db_config):
+        self.db_config = db_config
+        self.metadata_controller = {}
+    @property
+    def uri(self):
+        uri = 'postgresql://{user}:{password}@{host}:{port}/{database}'.format(
+            user=self.db_config['user'],
+            password=self.db_config['password'],
+            host=self.db_config['host'],
+            port=self.db_config['port'],
+            database=self.db_config['database']
+        )
+        return uri
+
+    def build_db(self):
+
+        engine = sa.create_engine(self.uri)
+        self.metadata.create_all(engine)
+
+    def setup_metadata(self, agents_config):
+        for agent_name, agent_config in agents_config.items():
+            columns = [sa.Column('time', sa.DateTime, primary_key=True)]
+            for column, column_spec in agent_config['monitoring'].items():
+                columns.append(sa.Column(column, self.MAP_DB_TYPE[column_spec['db_type']]))
+            self.metadata_controller[agent_name] = sa.Table(agent_name, self.metadata, *columns)
+

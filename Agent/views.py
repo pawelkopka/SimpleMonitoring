@@ -1,7 +1,6 @@
 import psutil
 from aiohttp import web
 from typing import Dict, Any
-
 Request = str  # TODO change it
 Json = Dict[Any, Any]
 Process = psutil.Process
