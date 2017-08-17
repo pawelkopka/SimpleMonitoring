@@ -54,6 +54,17 @@ class Agent(object):
         return web.json_response(dict(data=psutil.cpu_freq(percpu=bool(query.get('percpu', False)))),
                                  status=200)
 
+    async def cpu_times_percent(self, request: Request) -> Json:
+        """
+
+        :param request:
+        :return:
+        """
+        query = request.rel_url.query
+        data = psutil.cpu_times_percent(percpu=bool(query.get('percpu', False)))
+        return web.json_response(dict(data=[data.user, data.system, data.idle]),
+                                 status=200)
+
     async def _find_pid(self, process_name: str) -> (int or None):
         """
         
