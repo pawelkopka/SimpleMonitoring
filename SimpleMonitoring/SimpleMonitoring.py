@@ -4,6 +4,6 @@ from plotter import Plotter
 
 db_config, agents_config = parse_config('collector.ini')
 plotter = Plotter(db_config, agents_config)
-plotter.run(1000)
+plotter.run(800)
 
 

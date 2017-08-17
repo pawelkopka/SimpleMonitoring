@@ -32,7 +32,7 @@ class Collector:
     async def is_full_row(self, row, timeout=3):
         timeout = timeout + time.time()
         while time.time() < timeout:
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.1)
             for column in row:
                 if not column.done():
                     print('task NOT done')
@@ -75,4 +75,4 @@ if __name__ == '__main__':
     db_config, agents_config = parse_config('collector.ini')
     bone_colletor = Collector(db_config, agents_config)
     bone_colletor.initialization_clients()
-    bone_colletor.run(1)
+    bone_colletor.run(0.2)

@@ -31,6 +31,14 @@ class ClientAgent:
         resp = await self._make_request_get('cpu_percent', params=params)
         return json.loads(await resp.text())
 
+    async def cpu_times_percent(self, percpu=''):
+        params = {'percpu': str(percpu)}
+        resp = await self._make_request_get('cpu_times_percent', params=params)
+        # print(resp)
+        # print(await resp.text())
+        # print(json.loads(await resp.text()))
+        return json.loads(await resp.text())
+
     async def virtual_memory(self):
         print('memory')
         resp = await self._make_request_get('virtual_memory')

@@ -31,12 +31,49 @@ class Plotter(object):
                 figure_name = '{agent}-{data}'.format(agent=agent, data=data)
                 self.sources[figure_name] = {}
                 # self.sources[figure_name]['buffor'] = dict(x=[], y=[])
-                source = ColumnDataSource(dict(x=[], y=[]))
+                if data_config['db_type'] == 'json':
+                    source = ColumnDataSource(dict(x=[], u=[], s=[], i=[]))
+                else:
+                    source = ColumnDataSource(dict(x=[], y=[]))
                 self.sources[figure_name] = source
 
     def _create_figures(self):
         for agent, agent_config in self.agents_config.items():
             for data, data_config in agent_config['monitoring'].items():
+                import time
+                print(data_config)
+                print(data)
+                if data_config['db_type'] == 'json':
+                    figure_name = '{agent}-{data}'.format(agent=agent, data=data)
+                    fig = Figure(x_axis_type="datetime",
+                                 x_axis_label="Time",
+                                 y_axis_label=data_config['unit'],
+                                 title=figure_name
+                                 )
+                    fig.title.text_font_size = '20pt'
+                    fig.line(source=self.sources[figure_name],
+                             x='x',
+                             y='u',
+                             legend="user",
+                             line_width=3,
+                             alpha=.5,
+                             color='red')
+                    fig.line(source=self.sources[figure_name],
+                             x='x',
+                             y='s',
+                             legend="system",
+                             line_width=3,
+                             alpha=.5,
+                             color='green')
+                    fig.line(source=self.sources[figure_name],
+                             x='x',
+                             y='i',
+                             legend="idle",
+                             line_width=3,
+                             alpha=.5,
+                             color='blue')
+                    self.figures[figure_name] = fig
+                    continue
                 figure_name = '{agent}-{data}'.format(agent=agent, data=data)
                 fig = Figure(x_axis_type="datetime",
                              x_axis_label="Time",
@@ -78,8 +115,9 @@ class Plotter(object):
                 x = result[0]
                 y = result[i]
                 if isinstance(y, list):
-                    y = y[0]
-                self.sources[figure_name].stream(dict(x=[x], y=[y]), 100)
+                    self.sources[figure_name].stream(dict(x=[x], u=[y[0]], s=[y[1]], i=[y[2]]), 100)
+                else:
+                    self.sources[figure_name].stream(dict(x=[x], y=[y]), 100)
                 i += 1
 
     def streaming(self):
