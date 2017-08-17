@@ -41,6 +41,12 @@ class ClientAgent:
         resp = await self._make_request_get('sensors_temperatures')
         return json.loads(await resp.text())
 
+    async def cpu_freq(self, percpu=''):
+        params = {'percpu': str(percpu)}
+        print('cpu_freq')
+        resp = await self._make_request_get('cpu_freq', params=params)
+        return json.loads(await resp.text())
+
     async def pid(self, name):
         params = {'name': name}
         resp = await self._make_request_get('pid', params=params)

@@ -37,11 +37,21 @@ class Agent(object):
 
     async def sensors_temperatures(self, request: Request) -> Json:
         """
-        :param request: 
+        :param request:
         :return:
          json {data: dict(dependd on hardware)}
         """
         return web.json_response(dict(data=psutil.sensors_temperatures()),
+                                 status=200)
+
+    async def cpu_freq(self, request: Request) -> Json:
+        """
+
+        :param request:
+        :return:
+        """
+        query = request.rel_url.query
+        return web.json_response(dict(data=psutil.cpu_freq(percpu=bool(query.get('percpu', False)))),
                                  status=200)
 
     async def _find_pid(self, process_name: str) -> (int or None):

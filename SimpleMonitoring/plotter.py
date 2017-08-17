@@ -1,7 +1,8 @@
 import asyncio
-
+from collections import defaultdict
 from bokeh.io import curdoc
 from bokeh.models import ColumnDataSource
+from bokeh.layouts import column, row, gridplot
 from bokeh.plotting import Figure
 
 from database import DBclient
@@ -40,18 +41,24 @@ class Plotter(object):
                 fig = Figure(x_axis_type="datetime",
                              x_axis_label="Time",
                              y_axis_label=data_config['unit'],
-                             title=figure_name)
+                             title=figure_name
+                             )
+                fig.title.text_font_size = '20pt'
                 fig.line(source=self.sources[figure_name],
                          x='x',
                          y='y',
-                         line_width=2,
-                         alpha=.85,
+                         line_width=3,
+                         alpha=.5,
                          color='red')
                 self.figures[figure_name] = fig
 
     def _add_figures_to_stream(self):
+        figs = defaultdict(list)
         for figure in self.figures:
-            self.stream.add_root(self.figures[figure])
+            host, figure_name = figure.split('-')
+            figs[figure_name].append(self.figures[figure])
+        grid = gridplot([figs[fig] for fig in figs])
+        self.stream.add_root(grid)
 
     def featch_data_from_db(self):
         tasks = []
@@ -64,10 +71,15 @@ class Plotter(object):
         for agent_info, result_list in zip(self.agents_config.items(), results):
             agent, agent_config = agent_info
             result = result_list[0]
+            print(result)
             i = 1
             for data, data_config in agent_config['monitoring'].items():
                 figure_name = '{agent}-{data}'.format(agent=agent, data=data)
-                self.sources[figure_name].stream(dict(x=[result[0]], y=[result[1]]), 100)
+                x = result[0]
+                y = result[i]
+                if isinstance(y, list):
+                    y = y[0]
+                self.sources[figure_name].stream(dict(x=[x], y=[y]), 100)
                 i += 1
 
     def streaming(self):
